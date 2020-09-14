@@ -31,9 +31,6 @@ class IdaStarSearchAgent(SearchAgent):
         self.parents = {}
         self.heuristic = manhattan_heuristic
 
-    def adjlistkey(coord:tuple):
-        return self.heuristic(coord[0], coord[1])
-
     def idastar_action(self, observations):
         r = observations[0]
         c = observations[1]
@@ -45,13 +42,11 @@ class IdaStarSearchAgent(SearchAgent):
                 r2, c2 = r + dr, c + dc
                 if not observations[2 + m]: # can we go that way?
                     if (r2, c2) not in self.visited:
-
                         tovisit.append((r2, c2))
-                        d = self.get_distance(r, c)
-                        h = self.heuristic(r, c)
-                        tovisit.sort(key=self.adjlistkey)
-
                         self.parents[(r2, c2)] = current_cell
+            print("BEFORE:", tovisit)
+            tovisit.sort(key=lambda x: self.heuristic(x[0], x[1])) # sort the adjlist by the heuristic
+            print("AFTER:", tovisit)
             # remember the cells that are adjacent to this one
             self.adjlist[current_cell] = tovisit
         # if we have been here before, check if we have other places to visit
