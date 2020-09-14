@@ -6,6 +6,16 @@ from Maze.constants import *
 import Maze.agent
 from Maze.agent import *
 
+"""
+ideas:
+ - adjlist has to be sorted by heuristic (a star)
+ - implement depth limit for DFS search (don't add it to adjlist if too far?)
+    - increment depth limit after failed search at prev. depth
+        - new function with limit as param that calls action()?
+        - reset function ?
+            - what to keep from previous run ?
+"""
+
 class IdaStarSearchAgent(SearchAgent):
     """
     IDA* algorithm
