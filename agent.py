@@ -30,6 +30,7 @@ class IdaStarSearchAgent(SearchAgent):
         self.adjlist = {}
         self.parents = {}
         self.heuristic = manhattan_heuristic
+        self.min_next_bound = float('inf')
 
     
     def increment_limit(self, new_limit, observations):
@@ -45,9 +46,6 @@ class IdaStarSearchAgent(SearchAgent):
         r = observations[0]
         c = observations[1]
         current_cell = (r, c)
-        f = self.get_distance(r, c) + self.heuristic(r, c) # f(n) for current node
-        if f > self.bound:
-            return self.increment_limit(f, observations)
         # if we have not been here before, build a list of other places we can go
         if current_cell not in self.visited:
             tovisit = []
@@ -55,8 +53,13 @@ class IdaStarSearchAgent(SearchAgent):
                 r2, c2 = r + dr, c + dc
                 if not observations[2 + m]: # can we go that way?
                     if (r2, c2) not in self.visited:
-                        tovisit.append((r2, c2))
-                        self.parents[(r2, c2)] = current_cell
+                        f = self.get_distance(r2, c2) + self.heuristic(r2, c2) # f(n) for potential next node
+                        if f > self.bound:
+                            if f < min_next_bound:
+                                min_next_bound = f
+                        else:
+                            tovisit.append((r2, c2))
+                            self.parents[(r2, c2)] = current_cell
             tovisit.sort(key=lambda x: self.heuristic(x[0], x[1])) # sort the adjlist by the heuristic
             # remember the cells that are adjacent to this one
             self.adjlist[current_cell] = tovisit
