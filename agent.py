@@ -33,12 +33,13 @@ class IdaStarSearchAgent(SearchAgent):
         self.min_next_bound = float('inf')
 
     
-    def increment_limit(self, new_limit, observations):
+    def increment_limit(self):
         self.visited = set([])
         self.parents = {}
         self.backpointers = {}
-        self.bound = new_limit
-        get_environment().teleport(self, self.starting_pos[0], self.starting_pos[1])
+        self.bound = self.min_next_bound
+        self.min_next_bound = float('inf')
+        #get_environment().teleport(self, self.starting_pos[0], self.starting_pos[1])
         print("Restarting w/ new limit of", self.bound)
         return self.idastar_action(self.starting_observations)
 
@@ -55,8 +56,9 @@ class IdaStarSearchAgent(SearchAgent):
                     if (r2, c2) not in self.visited:
                         f = self.get_distance(r2, c2) + self.heuristic(r2, c2) # f(n) for potential next node
                         if f > self.bound:
-                            if f < min_next_bound:
-                                min_next_bound = f
+                            print("Excluded branch with f()=", f)
+                            if f < self.min_next_bound:
+                                self.min_next_bound = f
                         else:
                             tovisit.append((r2, c2))
                             self.parents[(r2, c2)] = current_cell
@@ -70,6 +72,8 @@ class IdaStarSearchAgent(SearchAgent):
             k += 1
         # if we don't have other neighbors to visit, back up
         if k == len(adjlist):
+            if current_cell == self.starting_pos: # no more options, increment limit
+                return self.increment_limit()
             next_cell = self.parents[current_cell]
         else: # otherwise visit the next place
             next_cell = adjlist[k]
