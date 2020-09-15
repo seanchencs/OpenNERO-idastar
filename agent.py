@@ -30,16 +30,16 @@ class IdaStarSearchAgent(SearchAgent):
         self.adjlist = {}
         self.parents = {}
         self.heuristic = manhattan_heuristic
-        self.bound = self.heuristic(0,0)
+
     
     def increment_limit(self, new_limit, observations):
         self.visited = set([])
         self.parents = {}
         self.backpointers = {}
-        self.starting_pos = None
         self.bound = new_limit
+        get_environment().teleport(self, self.starting_pos[0], self.starting_pos[1])
         print("Restarting w/ new limit of", self.bound)
-        return self.idastar_action(observations)
+        return self.idastar_action(self.starting_observations)
 
     def idastar_action(self, observations):        
         r = observations[0]
@@ -57,9 +57,7 @@ class IdaStarSearchAgent(SearchAgent):
                     if (r2, c2) not in self.visited:
                         tovisit.append((r2, c2))
                         self.parents[(r2, c2)] = current_cell
-            print("BEFORE:", tovisit)
             tovisit.sort(key=lambda x: self.heuristic(x[0], x[1])) # sort the adjlist by the heuristic
-            print("AFTER:", tovisit)
             # remember the cells that are adjacent to this one
             self.adjlist[current_cell] = tovisit
         # if we have been here before, check if we have other places to visit
@@ -92,6 +90,8 @@ class IdaStarSearchAgent(SearchAgent):
         r = observations[0]
         c = observations[1]
         self.starting_pos = (r, c)
+        self.starting_observations = observations
+        self.bound = self.heuristic(r, c)
         get_environment().mark_maze_white(r, c)
         return self.idastar_action(observations)
 
