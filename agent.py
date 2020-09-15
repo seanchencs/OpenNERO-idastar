@@ -8,9 +8,9 @@ from Maze.agent import *
 
 """
 ideas:
- - adjlist has to be sorted by heuristic (a star)
- - implement depth limit for DFS search (don't add it to adjlist if too far?)
-    - increment depth limit after failed search at prev. depth
+ - adjlist has to be sorted by heuristic (a star) | done
+ - implement limit for DFS search (don't add it to adjlist if too far?)
+    - increment limit after failed search at prev. depth
         - new function with limit as param that calls action()?
         - reset function ?
             - what to keep from previous run ?
@@ -30,11 +30,24 @@ class IdaStarSearchAgent(SearchAgent):
         self.adjlist = {}
         self.parents = {}
         self.heuristic = manhattan_heuristic
+        self.bound = self.heuristic(0,0)
+    
+    def increment_limit(self, new_limit, observations):
+        self.visited = set([])
+        self.parents = {}
+        self.backpointers = {}
+        self.starting_pos = None
+        self.bound = new_limit
+        print("Restarting w/ new limit of", self.bound)
+        return self.idastar_action(observations)
 
-    def idastar_action(self, observations):
+    def idastar_action(self, observations):        
         r = observations[0]
         c = observations[1]
         current_cell = (r, c)
+        f = self.get_distance(r, c) + self.heuristic(r, c) # f(n) for current node
+        if f > self.bound:
+            return self.increment_limit(f, observations)
         # if we have not been here before, build a list of other places we can go
         if current_cell not in self.visited:
             tovisit = []
