@@ -7,13 +7,20 @@ import Maze.agent
 from Maze.agent import *
 
 """
-ideas:
- - adjlist has to be sorted by heuristic (a star) | done
- - implement limit for DFS search (don't add it to adjlist if too far?)
-    - increment limit after failed search at prev. depth
-        - new function with limit as param that calls action()?
-        - reset function ?
-            - what to keep from previous run ?
+Sean Chen (sc53864)
+
+To implement IDA*, I modified the DFS search agent that is built into OpenNERO.
+I changed the adjacency lists (which function as lists of open nodes) to be
+sorted by the heuristic (manhattan distance). This change means that when the
+DFS algorithm is choosing which branch to explore first, it will choose the most
+promising one first. Next, I implemented a bound for the heuristic. This
+involves initalizing the bound on start to the heuristic at the starting
+position. Then, as the agent begins choosing actions, I exclude potential
+branches whose f(n) is greater than the bound by not adding them to the
+adjacency list. As I exclude these branches, I keep track of the minimum f(n)
+of excluded branches. If the algorithm backtracks to the start and has no more
+options, I then restart the search with an increased bound of the mimnimum f(n)
+that was excluded as tracked from the previous run.
 """
 
 class IdaStarSearchAgent(SearchAgent):
@@ -39,8 +46,6 @@ class IdaStarSearchAgent(SearchAgent):
         self.backpointers = {}
         self.bound = self.min_next_bound
         self.min_next_bound = float('inf')
-        #get_environment().teleport(self, self.starting_pos[0], self.starting_pos[1])
-        print("Restarting w/ new limit of", self.bound)
         return self.idastar_action(self.starting_observations)
 
     def idastar_action(self, observations):        
@@ -56,7 +61,6 @@ class IdaStarSearchAgent(SearchAgent):
                     if (r2, c2) not in self.visited:
                         f = self.get_distance(r2, c2) + self.heuristic(r2, c2) # f(n) for potential next node
                         if f > self.bound:
-                            print("Excluded branch with f()=", f)
                             if f < self.min_next_bound:
                                 self.min_next_bound = f
                         else:
