@@ -1,4 +1,6 @@
 Name: Sean Chen
 CS ID: sc53864
 
+To run, put the agent.py file along with the given HW1 skeleton files into the OpenNERO directory. Launch OpenNERO and select HW1 from the dropdown menu and select the IDA* algorithm and run to solve the maze. For the most informative results, set starting offset to a non-zero value (so that the starting heuristic limit will rule out some branches)
+
 To implement IDA*, I modified the DFS search agent that is built into OpenNERO. I changed the adjacency lists (which function as lists of open nodes) to be sorted by the heuristic (manhattan distance). This change means that when the DFS algorithm is choosing which branch to explore first, it will choose the most promising one first. Next, I implemented a bound for the heuristic. This involves initalizing the bound on start to the heuristic at the starting position. Then, as the agent begins choosing actions, I exclude potential branches whose f(n) is greater than the bound by not adding them to the adjacency list. As I exclude these branches, I keep track of the minimum f(n) of excluded branches. If the algorithm backtracks to the start and has no more options, I then restart the search with an increased bound of the mimnimum f(n) that was excluded as tracked from the previous run.
